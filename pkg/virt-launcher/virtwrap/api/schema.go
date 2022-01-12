@@ -918,13 +918,19 @@ type VideoModel struct {
 }
 
 type Graphics struct {
-	AutoPort      string          `xml:"autoPort,attr,omitempty"`
-	DefaultMode   string          `xml:"defaultMode,attr,omitempty"`
-	Listen        *GraphicsListen `xml:"listen,omitempty"`
-	PasswdValidTo string          `xml:"passwdValidTo,attr,omitempty"`
-	Port          int32           `xml:"port,attr,omitempty"`
-	TLSPort       int             `xml:"tlsPort,attr,omitempty"`
-	Type          string          `xml:"type,attr"`
+	AutoPort      string             `xml:"autoPort,attr,omitempty"`
+	DefaultMode   string             `xml:"defaultMode,attr,omitempty"`
+	Listen        *GraphicsListen    `xml:"listen,omitempty"`
+	ClipBoard     *GraphicsClipBoard `xml:"clipBoard,omitempty"`
+	Passwrod      string             `xml:"passwd,attr,omitempty"`
+	PasswdValidTo string             `xml:"passwdValidTo,attr,omitempty"`
+	Port          int32              `xml:"port,attr,omitempty"`
+	TLSPort       int                `xml:"tlsPort,attr,omitempty"`
+	Type          string             `xml:"type,attr"`
+}
+
+type GraphicsClipBoard struct {
+	CopyPaste string `xml:"copypaste,attr,omitempty"`
 }
 
 type GraphicsListen struct {

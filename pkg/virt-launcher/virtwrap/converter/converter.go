@@ -1126,6 +1126,17 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 	newChannel := Add_Agent_To_api_Channel()
 	domain.Spec.Devices.Channels = append(domain.Spec.Devices.Channels, newChannel)
 
+	// spice support
+	spiceChannel := api.Channel{
+		Type:   "spicevnc",
+		Source: nil,
+		Target: &api.ChannelTarget{
+			Name: "com.redhat.spice.0",
+			Type: "virtio",
+		},
+	}
+	domain.Spec.Devices.Channels = append(domain.Spec.Devices.Channels, spiceChannel)
+
 	domain.Spec.Metadata.KubeVirt.UID = vmi.UID
 	gracePeriodSeconds := v1.DefaultGracePeriodSeconds
 	if vmi.Spec.TerminationGracePeriodSeconds != nil {
@@ -1686,16 +1697,27 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 
 	if vmi.Spec.Domain.Devices.AutoattachGraphicsDevice == nil || *vmi.Spec.Domain.Devices.AutoattachGraphicsDevice == true {
 		var heads uint = 1
-		var vram uint = 16384
+		// spice support update
+		//var vram uint = 16384
+		var qxlram uint = 65535
 		domain.Spec.Devices.Video = []api.Video{
+			//{
+			//	Model: api.VideoModel{
+			//		Type:  "vga",
+			//		Heads: &heads,
+			//		VRam:  &vram,
+			//	},
+			//},
 			{
 				Model: api.VideoModel{
-					Type:  "vga",
+					Type:  "qxl",
 					Heads: &heads,
-					VRam:  &vram,
+					Ram:   &qxlram,
+					VRam:  &qxlram,
 				},
 			},
 		}
+		// spice support update
 		domain.Spec.Devices.Graphics = []api.Graphics{
 			{
 				Listen: &api.GraphicsListen{
@@ -1703,6 +1725,16 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 					Socket: fmt.Sprintf("/var/run/kubevirt-private/%s/virt-vnc", vmi.ObjectMeta.UID),
 				},
 				Type: "vnc",
+			}, {
+				AutoPort: "no",
+				Listen: &api.GraphicsListen{
+					Type:    "address",
+					Address: "0.0.0.0",
+				},
+				ClipBoard: &api.GraphicsClipBoard{CopyPaste: "no"},
+				Port:      5092,
+				Type:      "spice",
+				Passwrod:  "123456",
 			},
 		}
 	}
