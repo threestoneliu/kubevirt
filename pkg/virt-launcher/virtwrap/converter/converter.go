@@ -1128,7 +1128,7 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 
 	// spice support
 	spiceChannel := api.Channel{
-		Type:   "spicevnc",
+		Type:   "spicevmc",
 		Source: nil,
 		Target: &api.ChannelTarget{
 			Name: "com.redhat.spice.0",
