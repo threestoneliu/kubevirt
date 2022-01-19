@@ -922,6 +922,11 @@ type Graphics struct {
 	DefaultMode   string             `xml:"defaultMode,attr,omitempty"`
 	Listen        *GraphicsListen    `xml:"listen,omitempty"`
 	ClipBoard     *GraphicsClipBoard `xml:"clipBoard,omitempty"`
+	Image         *GraphicsImage     `xml:"image,omitempty"`
+	Jpeg          *GraphicsJPEG      `xml:"jpeg,omitempty"`
+	Zlib          *GraphicsZlib      `xml:"zlib,omitempty"`
+	Playback      *GraphicsPlayback  `xml:"playback,omitempty"`
+	Streaming     *GraphicsStreaming `xml:"streaming,omitempty"`
 	Passwrod      string             `xml:"passwd,attr,omitempty"`
 	PasswdValidTo string             `xml:"passwdValidTo,attr,omitempty"`
 	Port          int32              `xml:"port,attr,omitempty"`
@@ -931,6 +936,25 @@ type Graphics struct {
 
 type GraphicsClipBoard struct {
 	CopyPaste string `xml:"copypaste,attr,omitempty"`
+}
+
+type GraphicsImage struct {
+	Compression string `xml:"compression,attr,omitempty"`
+}
+
+type GraphicsJPEG struct {
+	Compression string `xml:"compression,attr,omitempty"`
+}
+type GraphicsZlib struct {
+	Compression string `xml:"compression,attr,omitempty"`
+}
+
+type GraphicsPlayback struct {
+	Comression string `xml:"compression,attr,omitempty"`
+}
+
+type GraphicsStreaming struct {
+	Mode string `xml:"mode,attr,omitempty"`
 }
 
 type GraphicsListen struct {
