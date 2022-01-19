@@ -306,7 +306,15 @@ container_pull(
     digest = "sha256:5e2b864cfe165fa7da6606b29a9e60549eb7cc9ae7fb574614110d1494b0f0c2",
     registry = "quay.io",
     repository = "kubevirtci/fedora",
-    tag = "31",
+    tag = "32",
+)
+
+container_pull(
+    name = "kubevirt-libvirt-base",
+    digest = "sha256:f983fdbe007c7ab3a59b51d8c81077310704d503e21d2af4bf79adbfaadd8d31",
+    registry = "docker.io",
+    repository = "chuangchuang/kubevirt-libvirt-base",
+    tag = "1",
 )
 
 # As rpm package in https://dl.fedoraproject.org/pub/fedora/linux/releases/31 is empty, we use fedora 32 here.

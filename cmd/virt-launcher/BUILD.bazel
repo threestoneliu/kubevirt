@@ -132,17 +132,16 @@ pkg_tar(
 container_image(
     name = "version-container",
     directory = "/",
+    base = "@kubevirt-libvirt-base//image",
     files = ["//:get-version"],
     tars = select({
         "@io_bazel_rules_go//go/platform:linux_arm64": [
             ":libvirt-config",
             ":passwd-tar",
-            "//rpm:launcherbase_aarch64",
         ],
         "//conditions:default": [
             ":libvirt-config",
             ":passwd-tar",
-            "//rpm:launcherbase_x86_64",
         ],
     }),
 )

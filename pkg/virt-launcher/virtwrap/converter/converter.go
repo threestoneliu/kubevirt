@@ -1509,6 +1509,12 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 		}
 		domain.Spec.Devices.Inputs = inputDevices
 	}
+	//spice support
+	//if domain.Spec.Devices.Inputs == nil {
+	//	domain.Spec.Devices.Inputs = []api.Input{api.Input{Type: "keyboard", Bus: "usb"}, api.Input{Type: "mouse", Bus: "usb"}}
+	//} else {
+	//	domain.Spec.Devices.Inputs = append(domain.Spec.Devices.Inputs, api.Input{Type: "keyboard", Bus: "usb"}, api.Input{Type: "mouse", Bus: "usb"})
+	//}
 
 	isUSBRedirEnabled, err := Convert_v1_Usbredir_To_api_Usbredir(vmi, &domain.Spec.Devices, c)
 	if err != nil {
@@ -1738,6 +1744,11 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 			},
 		}
 	}
+
+	initializeQEMUCmdAndQEMUArg(domain)
+	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "-usb"})
+	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "-usbdevice"})
+	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "tablet"})
 
 	domainInterfaces, err := createDomainInterfaces(vmi, domain, c, virtioNetProhibited)
 	if err != nil {
