@@ -1135,7 +1135,28 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 			Type: "virtio",
 		},
 	}
-	domain.Spec.Devices.Channels = append(domain.Spec.Devices.Channels, spiceChannel)
+
+	//ovirt guest agent support
+	ovirtChannel := api.Channel{
+		Type:   "unix",
+		Source: nil,
+		Target: &api.ChannelTarget{
+			Name: "ovirt-guest-agent.0",
+			Type: "virtio",
+		},
+	}
+
+	/*
+	channel.Type = "unix"
+		// let libvirt decide which path to use
+		channel.Source = nil
+		channel.Target = &api.ChannelTarget{
+			Name: "org.qemu.guest_agent.0",
+			Type: "virtio",
+		}
+	*/
+
+	domain.Spec.Devices.Channels = append(domain.Spec.Devices.Channels, spiceChannel, ovirtChannel)
 
 	domain.Spec.Metadata.KubeVirt.UID = vmi.UID
 	gracePeriodSeconds := v1.DefaultGracePeriodSeconds
