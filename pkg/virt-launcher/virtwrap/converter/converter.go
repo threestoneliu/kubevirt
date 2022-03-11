@@ -1147,13 +1147,13 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 	}
 
 	/*
-	channel.Type = "unix"
-		// let libvirt decide which path to use
-		channel.Source = nil
-		channel.Target = &api.ChannelTarget{
-			Name: "org.qemu.guest_agent.0",
-			Type: "virtio",
-		}
+		channel.Type = "unix"
+			// let libvirt decide which path to use
+			channel.Source = nil
+			channel.Target = &api.ChannelTarget{
+				Name: "org.qemu.guest_agent.0",
+				Type: "virtio",
+			}
 	*/
 
 	domain.Spec.Devices.Channels = append(domain.Spec.Devices.Channels, spiceChannel, ovirtChannel)
@@ -1744,6 +1744,18 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 				},
 			},
 		}
+		pasteable := "no"
+		filestranfer := "no"
+		anno := vmi.GetAnnotations()
+		if anno != nil {
+			if v, ok := anno["cmos.spice.pasteable"]; ok {
+				pasteable = v
+			}
+			if v, ok := anno["cmos.spice.filetransfer"]; ok {
+				filestranfer = v
+			}
+		}
+
 		// spice support update
 		domain.Spec.Devices.Graphics = []api.Graphics{
 			{
@@ -1758,23 +1770,31 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 					Type:    "address",
 					Address: "0.0.0.0",
 				},
-				ClipBoard: &api.GraphicsClipBoard{CopyPaste: "yes"},
-				Image:     &api.GraphicsImage{Compression: "auto_glz"},
-				Jpeg:      &api.GraphicsJPEG{Compression: "auto"},
-				Zlib:      &api.GraphicsZlib{Compression: "auto"},
-				Playback:  &api.GraphicsPlayback{Comression: "on"},
-				Streaming: &api.GraphicsStreaming{Mode: "filter"},
-				Port:      5092,
-				Type:      "spice",
-				Passwrod:  "123456",
+				ClipBoard:    &api.GraphicsClipBoard{CopyPaste: pasteable},
+				FileTransfer: &api.FlieTransfer{Enable: filestranfer},
+				Image:        &api.GraphicsImage{Compression: "auto_glz"},
+				Jpeg:         &api.GraphicsJPEG{Compression: "auto"},
+				Zlib:         &api.GraphicsZlib{Compression: "auto"},
+				Playback:     &api.GraphicsPlayback{Comression: "on"},
+				Streaming:    &api.GraphicsStreaming{Mode: "filter"},
+				Port:         5092,
+				Type:         "spice",
+				Passwrod:     "123456",
 			},
 		}
 	}
+	domain.Spec.Devices.Sound = []api.Sound{{Model: "ac97"}}
+	//domain.Spec.Devices.Audio = []api.Audio{
+	//	{Type: "spice"},
+	//}
 
 	initializeQEMUCmdAndQEMUArg(domain)
 	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "-usb"})
 	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "-usbdevice"})
 	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "tablet"})
+	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "-soundhw"})
+	domain.Spec.QEMUCmd.QEMUArg = append(domain.Spec.QEMUCmd.QEMUArg, api.Arg{Value: "hda"})
+	domain.Spec.QEMUCmd.QEMUEnv = append(domain.Spec.QEMUCmd.QEMUEnv, api.Env{Name: "QEMU_AUDIO_DRV", Value: "spice"})
 
 	domainInterfaces, err := createDomainInterfaces(vmi, domain, c, virtioNetProhibited)
 	if err != nil {

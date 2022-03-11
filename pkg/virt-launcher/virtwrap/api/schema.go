@@ -431,6 +431,7 @@ type Devices struct {
 	HostDevices []HostDevice       `xml:"hostdev,omitempty"`
 	Controllers []Controller       `xml:"controller,omitempty"`
 	Video       []Video            `xml:"video"`
+	Audio       []Audio            `xml:"audio"`
 	Graphics    []Graphics         `xml:"graphics"`
 	Ballooning  *MemBalloon        `xml:"memballoon,omitempty"`
 	Disks       []Disk             `xml:"disk"`
@@ -441,6 +442,15 @@ type Devices struct {
 	Rng         *Rng               `xml:"rng,omitempty"`
 	Filesystems []FilesystemDevice `xml:"filesystem,omitempty"`
 	Redirs      []RedirectedDevice `xml:"redirdev,omitempty"`
+	Sound       []Sound            `xml:"sound,omitempty"`
+}
+
+type Sound struct {
+	Model string `xml:"model,attr,omitempty"`
+}
+
+type Audio struct {
+	Type string `xml:"type,attr"`
 }
 
 // RedirectedDevice describes a device to be redirected
@@ -921,8 +931,9 @@ type Graphics struct {
 	AutoPort      string             `xml:"autoPort,attr,omitempty"`
 	DefaultMode   string             `xml:"defaultMode,attr,omitempty"`
 	Listen        *GraphicsListen    `xml:"listen,omitempty"`
-	ClipBoard     *GraphicsClipBoard `xml:"clipBoard,omitempty"`
+	ClipBoard     *GraphicsClipBoard `xml:"clipboard,omitempty"`
 	Image         *GraphicsImage     `xml:"image,omitempty"`
+	FileTransfer  *FlieTransfer      `xml:"filetransfer,omitempty"`
 	Jpeg          *GraphicsJPEG      `xml:"jpeg,omitempty"`
 	Zlib          *GraphicsZlib      `xml:"zlib,omitempty"`
 	Playback      *GraphicsPlayback  `xml:"playback,omitempty"`
@@ -932,6 +943,10 @@ type Graphics struct {
 	Port          int32              `xml:"port,attr,omitempty"`
 	TLSPort       int                `xml:"tlsPort,attr,omitempty"`
 	Type          string             `xml:"type,attr"`
+}
+
+type FlieTransfer struct {
+	Enable string `xml:"enable,attr,omitempty"`
 }
 
 type GraphicsClipBoard struct {
