@@ -716,7 +716,7 @@ func Convert_v1_Hotplug_BlockVolumeSource_To_api_Disk(volumeName string, disk *a
 
 func Convert_v1_HostDisk_To_api_Disk(volumeName string, path string, disk *api.Disk) error {
 	disk.Type = "file"
-	disk.Driver.Type = "raw"
+	disk.Driver.Type = "qcow2"
 	disk.Driver.ErrorPolicy = "stop"
 	disk.Source.File = hostdisk.GetMountedHostDiskPath(volumeName, path)
 	return nil
@@ -1418,6 +1418,11 @@ func Convert_v1_VirtualMachineInstance_To_api_Domain(vmi *v1.VirtualMachineInsta
 		}
 
 		if _, ok := c.HotplugVolumes[disk.Name]; !ok {
+			if volume.HostDisk != nil {
+				if volume.HostDisk.Path[len(volume.HostDisk.Path)-1] == '/' {
+					volume.HostDisk.Path = filepath.Join(volume.HostDisk.Path, strings.Join([]string{vmi.ObjectMeta.Name, "qcow"}, "."))
+				}
+			}
 			err = Convert_v1_Volume_To_api_Disk(volume, &newDisk, c, volumeIndices[disk.Name])
 		} else {
 			err = Convert_v1_Hotplug_Volume_To_api_Disk(volume, &newDisk, c)

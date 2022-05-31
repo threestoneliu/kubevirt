@@ -263,12 +263,25 @@ func (c *VMIReplicaSet) scale(rs *virtv1.VirtualMachineInstanceReplicaSet, vmis 
 		log.Log.V(4).Object(rs).Info("Delete excess VM's")
 		// We have to delete VMIs, use a very simple selection strategy for now
 		// TODO: Possible deletion order: not yet running VMIs < migrating VMIs < other
-		deleteCandidates := vmis[0:diff]
+		//deleteCandidates := vmis[0:diff]
+		deleteCandidates := filter(vmis, func(vmi *virtv1.VirtualMachineInstance) bool {
+			if vmi.ObjectMeta.Labels == nil {
+				return true
+			}
+			return vmi.ObjectMeta.Labels["session"] == ""
+		})
+		if len(deleteCandidates) > diff {
+			deleteCandidates = deleteCandidates[0:diff]
+		} else if len(deleteCandidates) < diff {
+			for j := 0; j < diff-len(deleteCandidates); j++ {
+				wg.Done()
+			}
+		}
 		c.expectations.ExpectDeletions(rsKey, controller.VirtualMachineInstanceKeys(deleteCandidates))
-		for i := 0; i < diff; i++ {
+		for i := 0; i < len(deleteCandidates); i++ {
 			go func(idx int) {
 				defer wg.Done()
-				deleteCandidate := vmis[idx]
+				deleteCandidate := deleteCandidates[idx]
 				err := c.clientset.VirtualMachineInstance(rs.ObjectMeta.Namespace).Delete(deleteCandidate.ObjectMeta.Name, &metav1.DeleteOptions{})
 				// Don't log an error if it is already deleted
 				if err != nil {

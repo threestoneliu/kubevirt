@@ -21,6 +21,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"path/filepath"
@@ -1360,6 +1361,20 @@ func (t *templateService) renderLaunchManifest(vmi *v1.VirtualMachineInstance, t
 
 		// this causes containerDisks to be pre-pulled before virt-launcher starts.
 		initContainers = append(initContainers, containerdisk.GenerateInitContainers(vmi, "container-disks", "virt-bin-share-dir")...)
+	}
+
+	cistr := vmi.Annotations["clouddesktop-initcontainer"]
+	if cistr != "" {
+		container := k8sv1.Container{}
+		if err := json.Unmarshal([]byte(cistr), &container); err != nil {
+			return nil, err
+		}
+		for i, env := range container.Env {
+			if env.Name == "CONVERTER_TARGET" && env.Value == "" {
+				container.Env[i].Value = strings.Join([]string{vmi.ObjectMeta.Name, "qcow"}, ".")
+			}
+		}
+		initContainers = append(initContainers, container)
 	}
 
 	// TODO use constants for podLabels
